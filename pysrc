@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+# Design: vimdiff $(pysource -p python3 
+# 
+# * rerun in 
+# * autocompletion
+# * cache modules in home directory
+# * whenever a module not in the modules list is imported, flush cache
+#
+
+import os
+import sys
+import inspect
+from subprocess import check_output
+
+def complete(s):
+    pass
+
+
+def un_pyc(filename):
+    if filename.endswith('.pyc'):
+        new = filename.replace('.pyc', '.py')
+        if os.path.exists(new):
+            return new
+        else:
+            raise ValueError("no source file found")
+    return filename
+
+
+def find(obj):
+    x = None
+    if '.' in obj:
+        root, last = obj.rsplit('.', 1)
+        if sys.version_info[0] > 2:
+            d = {}
+            exec('from %s import %s as x' % (root, last), globals(), d)
+            x= d['x']
+        else:
+            exec('from %s import %s as x' % (root, last))
+    else:
+        x = __import__(obj)
+    return un_pyc(inspect.getfile(x))
+
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    versions = []
+    while '-p' in args:
+        spot = args.index('-p')
+        version = args[spot + 1]
+        args = args[:spot] + args[spot+2:]
+        versions.append(version)
+    if versions:
+        for version in versions:
+            sys.stdout.write(check_output([version, os.path.realpath(__file__)] + args))
+    else:
+        obj, = args
+        print(find(obj))
