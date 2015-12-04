@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # Design: vimdiff $(pysource -p python3 
-# 
-# * rerun in 
+#
+# * run once for each python specified with a -p
 # * autocompletion
 # * cache modules in home directory
 # * whenever a module not in the modules list is imported, flush cache
