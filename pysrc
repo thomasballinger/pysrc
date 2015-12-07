@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
-# Design: vimdiff $(pysource -p python3 
+#
+# to enable tab completion, add (and uncomment) the next line to .bashrc
+# complete -C 'pysrc --get-bash-completion' pysrc
+#
+
+# Design: vimdiff $(pysource -p python3)
 #
 # * run once for each python specified with a -p
 # * autocompletion
@@ -13,8 +18,65 @@ import sys
 import inspect
 from subprocess import check_output
 
-def complete(s):
-    pass
+
+
+module_cache_location = os.path.expanduser( '~/.module_cache_' +
+        os.path.realpath(sys.executable).replace('/', '_'))[:254]
+
+def update_module_cache():
+    try:
+        from bpython import importcompletion
+    except:
+        return False
+    while importcompletion.find_coroutine():
+        pass
+    with open(module_cache_location, 'w') as f:
+        for mod in sorted(importcompletion.modules):
+            f.write(mod)
+            f.write('\n')
+
+def log(*args):
+    sys.stderr.write('\n')
+    for arg in args:
+        sys.stderr.write(repr(arg))
+        sys.stderr.write(' ')
+    sys.stderr.write('\n')
+    sys.stderr.flush()
+
+def complete(base, word, prev):
+    modules = set(open(module_cache_location).read().split('\n'))
+    if word == '':
+        for mod in sorted(set(m.split('.')[0] for m in modules)):
+            print(mod)
+        return
+    matches = [m for m in modules if m.startswith(word)]
+    if matches:
+        for mod in matches:
+            print(mod)
+        return
+    parts = word.split('.')
+    log('parts', parts)
+
+    mods = {}
+    try:
+        exec("import %s" % (parts[0],), mods)
+    except ImportError:
+        return
+    log('successfully imported', parts[0])
+    for i, part in enumerate(parts[1:], start=1):
+        modulename = '.'.join(parts[:i])
+        if part == '':
+            break
+        try:
+            exec("from %s import %s" % (modulename, part), mods)
+        except ImportError:
+            log('could not import', part, 'from', modulename)
+        else:
+            log('successfully imported', part, 'from', modulename)
+
+    for name in dir(mods[parts[i-1]]):
+        if name.startswith(part):
+            print(modulename+'.'+name)
 
 
 def un_pyc(filename):
@@ -30,6 +92,8 @@ def un_pyc(filename):
 def find(obj):
     x = None
     if '.' in obj:
+        while obj.endswith('.'):
+            obj = obj[:-1]
         root, last = obj.rsplit('.', 1)
         if sys.version_info[0] > 2:
             d = {}
@@ -45,6 +109,12 @@ def find(obj):
 if __name__ == '__main__':
     args = sys.argv[1:]
     versions = []
+    if '--update-cache' in args:
+        update_module_cache()
+        sys.exit()
+    if args[0] == '--get-bash-completion':
+        complete(*args[1:])
+        sys.exit()
     while '-p' in args:
         spot = args.index('-p')
         version = args[spot + 1]
