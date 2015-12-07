@@ -55,14 +55,12 @@ def complete(base, word, prev):
             print(mod)
         return
     parts = word.split('.')
-    log('parts', parts)
 
     mods = {}
     try:
         exec("import %s" % (parts[0],), mods)
     except ImportError:
         return
-    log('successfully imported', parts[0])
     for i, part in enumerate(parts[1:], start=1):
         modulename = '.'.join(parts[:i])
         if part == '':
@@ -70,9 +68,9 @@ def complete(base, word, prev):
         try:
             exec("from %s import %s" % (modulename, part), mods)
         except ImportError:
-            log('could not import', part, 'from', modulename)
+            pass #log('could not import', part, 'from', modulename)
         else:
-            log('successfully imported', part, 'from', modulename)
+            pass #log('successfully imported', part, 'from', modulename)
 
     for name in dir(mods[parts[i-1]]):
         if name.startswith(part):
