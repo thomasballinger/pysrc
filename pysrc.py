@@ -19,9 +19,14 @@ import inspect
 from subprocess import check_output
 
 
-
-module_cache_location = os.path.expanduser( '~/.module_cache_' +
+module_cache_location = os.path.expanduser( '~/.pysrc/.module_cache_' +
         os.path.realpath(sys.executable).replace('/', '_'))[:254]
+
+
+def ensure_dir():
+    if not os.path.isdir(os.path.expanduser('~/.pysrc')):
+        os.mkdir(os.path.expanduser('~/.pysrc'))
+
 
 def update_module_cache():
     try:
@@ -30,6 +35,7 @@ def update_module_cache():
         return False
     while importcompletion.find_coroutine():
         pass
+    ensure_dir()
     with open(module_cache_location, 'w') as f:
         for mod in sorted(importcompletion.modules):
             f.write(mod)
