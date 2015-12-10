@@ -1,17 +1,8 @@
 #!/usr/bin/env python
 
-#
 # to enable tab completion, add (and uncomment) the next line to .bashrc
 # complete -C 'pysrc --get-bash-completion' pysrc
-#
 
-# Design: vimdiff $(pysource -p python3)
-#
-# * run once for each python specified with a -p
-# * autocompletion
-# * cache modules in home directory
-# * whenever a module not in the modules list is imported, flush cache
-#
 
 import os
 import sys
@@ -112,6 +103,9 @@ def find(obj):
 
 if __name__ == '__main__':
     args = sys.argv[1:]
+    if args == []:
+        print('usage: vimdiff $(pysource -p python3)')
+        sys.exit()
     versions = []
     if '--update-cache' in args:
         update_module_cache()
