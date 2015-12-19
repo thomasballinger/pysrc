@@ -4,14 +4,16 @@
 # complete -C 'pysrc --get-bash-completion' pysrc
 
 
+import hashlib
+import inspect
 import os
 import sys
-import inspect
+
 from subprocess import check_output
 
 
-module_cache_location = os.path.expanduser( '~/.pysrc/.module_cache_' +
-        os.path.realpath(sys.executable).replace('/', '_'))[:254]
+h = hashlib.md5(os.path.realpath(sys.executable)).hexdigest()
+module_cache_location = os.path.join(os.path.expanduser('~/.pysrc/'), h)
 
 
 def ensure_dir():
@@ -32,6 +34,7 @@ def update_module_cache():
             f.write(mod)
             f.write('\n')
 
+
 def log(*args):
     sys.stderr.write('\n')
     for arg in args:
@@ -40,7 +43,17 @@ def log(*args):
     sys.stderr.write('\n')
     sys.stderr.flush()
 
+
 def complete(base, word, prev):
+    if not os.path.exists(module_cache_location):
+        msg = 'discovering modules...'
+        sys.stderr.write(msg)
+        sys.stderr.flush()
+        update_module_cache()
+        sys.stderr.write('\x1b[%dD' % len(msg) + ' '*len(msg) +
+                         '\x1b[%dD' % len(msg))
+        sys.stderr.flush()
+
     modules = set(open(module_cache_location).read().split('\n'))
     if word == '':
         for mod in sorted(set(m.split('.')[0] for m in modules)):
