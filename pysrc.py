@@ -78,9 +78,9 @@ def complete(base, word, prev):
         try:
             exec("from %s import %s" % (modulename, part), mods)
         except ImportError:
-            pass #log('could not import', part, 'from', modulename)
+            pass  # log('could not import', part, 'from', modulename)
         else:
-            pass #log('successfully imported', part, 'from', modulename)
+            pass  # log('successfully imported', part, 'from', modulename)
 
     for name in dir(mods[parts[i-1]]):
         if name.startswith(part):
@@ -106,7 +106,7 @@ def find(obj):
         if sys.version_info[0] > 2:
             d = {}
             exec('from %s import %s as x' % (root, last), globals(), d)
-            x= d['x']
+            x = d['x']
         else:
             exec('from %s import %s as x' % (root, last))
     else:
@@ -133,7 +133,8 @@ if __name__ == '__main__':
         versions.append(version)
     if versions:
         for version in versions:
-            sys.stdout.write(check_output([version, os.path.realpath(__file__)] + args))
+            sys.stdout.write(check_output(
+                    [version, os.path.realpath(__file__)] + args))
     else:
         obj, = args
         print(find(obj))
