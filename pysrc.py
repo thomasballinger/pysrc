@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-# to enable tab completion, add (and uncomment) the next line to .bashrc
-# complete -C 'pysrc --get-bash-completion' pysrc
-
-
 import hashlib
 import inspect
 import os
@@ -118,6 +114,12 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     if args == []:
         print('usage: vimdiff $(pysource -p python3)')
+        sys.exit()
+    if args == ['-h'] or args == ['--help']:
+        print('usage: vimdiff $(pysource -p python3)')
+        print()
+        print("To enable completion, add the following line to your .bashrc")
+        print("complete -C 'pysrc --get-bash-completion' pysrc")
         sys.exit()
     versions = []
     if '--update-cache' in args:
