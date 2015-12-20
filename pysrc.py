@@ -117,7 +117,7 @@ if __name__ == '__main__':
         sys.exit()
     if args == ['-h'] or args == ['--help']:
         print('usage: vimdiff $(pysource -p python3)')
-        print()
+        print('')
         print("To enable completion, add the following line to your .bashrc")
         print("complete -C 'pysrc --get-bash-completion' pysrc")
         sys.exit()
