@@ -60,8 +60,11 @@ def complete(base, word, prev):
         for mod in matches:
             print(mod)
         return
-    parts = word.split('.')
+    complete_object(word)
 
+
+def complete_object(word):
+    parts = word.split('.')
     mods = {}
     try:
         exec("import %s" % (parts[0],), mods)
