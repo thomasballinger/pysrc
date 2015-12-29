@@ -10,7 +10,7 @@ To use tab completion, add
 
 For a command that opens the files immediately, try
 
-    complete -C 'pysrc --get-bash-completion' editpy
-    function editpy (){
+    complete -C 'pysrc --get-bash-completion' pyedit
+    function pyedit (){
         vim -O $(pysrc "$@")
     }
